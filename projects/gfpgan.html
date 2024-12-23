@@ -1,0 +1,229 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>GFP-GAN: Towards Real-World Blind Face Restoration with Generative Facial Prior</title>
+  <!--=================Meta tags==========================-->
+  <meta name="robots" content="index,follow">
+  <meta name="description"
+    content="Blind face restoration usually relies on facial priors, such as facial geometry prior or reference prior, to restore realistic and faithful details. However, very low-quality inputs cannot offer accurate geometric prior while high-quality references are inaccessible, limiting the applicability in real-world scenarios. In this work, we propose GFP-GAN that leverages rich and diverse priors encapsulated in a pretrained face GAN for blind face restoration. This Generative Facial Prior (GFP) is incorporated into the face restoration process via novel channel-split spatial feature transform layers, which allow our method to achieve a good balance of realness and fidelity. Thanks to the powerful generative facial prior and delicate designs, our GFP-GAN could jointly restore facial details and enhance colors with just a single forward pass, while GAN inversion methods require expensive image-specific optimization at inference. Extensive experiments show that our method achieves superior performance to prior art on both synthetic and real-world datasets.">
+  <meta name="keywords"
+    content="blind, super resolution, face restoration, GFP-GAN, gfpgan, generative, generative prior">
+  <link rel="author" href="https://xinntao.github.io/projects/gfpgan">
+  <!--=================js==========================-->
+  <link href="./css.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" type="text/css" href="./project.css" media="screen">
+  <script src="./effect.js "></script>
+  <!-- Latex -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+        TeX: { equationNumbers: { autoNumber: "AMS" } },
+      });
+      </script>
+  <script type="text/javascript" async
+    src="js/MathJax.js">
+    </script>
+  <!--=================Google Analytics==========================-->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FBT54RFYKE"></script>
+  <script>
+    var doNotTrack = false;
+    if ( false ) {
+      var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+      var doNotTrack = (dnt == "1" || dnt == "yes");
+    }
+    if (!doNotTrack) {
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-FBT54RFYKE');
+    }
+  </script>
+</head>
+
+<body>
+  <div id="content">
+    <div id="content-inner">
+      <div class="section head">
+        <h1>
+          <font color="Tomato">GFP-GAN</font>: Towards Real-World Blind Face Restoration
+        </h1>
+        <h1>
+          with <font color="Tomato">G</font>enerative <font color="Tomato">F</font>acial <font color="Tomato">P</font>rior
+        </h1>
+        <!--=================Authors==========================-->
+        <div class="authors">
+          <a href="https://xinntao.github.io/" target="_blank">Xintao Wang</a> &nbsp;&nbsp;&nbsp;&nbsp;
+          <a href="https://yu-li.github.io" target="_blank">Yu Li</a> &nbsp;&nbsp;&nbsp;&nbsp;
+          <a href="https://scholar.google.com/citations?hl=en&user=KjQLROoAAAAJ" target="_blank">Honglun Zhang</a>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <a href="https://scholar.google.com/citations?user=4oXBp9UAAAAJ&hl=en" target="_blank">Ying Shan</a>
+        </div>
+
+        <div class="affiliations ">
+          Applied Research Center (ARC), Tencent PCG
+        </div>
+        <!--=================Tabs==========================-->
+        <ul id="tabs">
+          <li><a href="#materials" name="#tab1">Materials</a></li>
+          <!-- <li><a href="#results" name="#tab4">Results</a></li> -->
+          <li><a href="#citation" name="#tab5">Citation</a></li>
+      </div>
+      <br>
+      <!--=================Teasers==========================-->
+      <div id="img_intro_examples" class="img_container">
+        <center>
+          <div class="leftView">
+            <div class="mask" style="width:80px;height:80px"></div>
+            <img class='small' src="./GFPGAN_src/gfpgan_teaser.jpg">
+          </div>
+        </center>
+      </div>
+      <div class="section">
+        <p>Comparisons with state-of-the-art face restoration methods: HiFaceGAN, DFDNet, Wan et al.
+          and
+          PULSE on the real-world low-quality images. While previous methods struggle to restore faithful facial
+          details or
+          retain
+          face identity, our proposed GFP-GAN achieves a good balance of realness and fidelity with much less artifacts.
+          In
+          addition,
+          the powerful generative facial prior allows us to perform restoration and color enhancement jointly.
+        </p>
+      </div>
+
+      <!--=================Abstract==========================-->
+      <div class="section abstract">
+        <h2>Abstract</h2>
+        <br>
+        <p>
+          Blind face restoration usually relies on facial priors, such as facial geometry prior or reference prior, to
+          restore
+          realistic and faithful details. However, very low-quality inputs cannot offer accurate geometric prior while
+          high-quality references are inaccessible, limiting the applicability in real-world scenarios. In this work, we
+          propose
+          GFP-GAN that leverages rich and diverse priors encapsulated in a pretrained face GAN for blind face
+          restoration. This
+          Generative Facial Prior (GFP) is incorporated into the face restoration process via novel channel-split
+          spatial feature
+          transform layers, which allow our method to achieve a good balance of realness and fidelity. Thanks to the
+          powerful
+          generative facial prior and delicate designs, our GFP-GAN could jointly restore facial details and enhance
+          colors with
+          just a single forward pass, while GAN inversion methods require expensive image-specific optimization at
+          inference.
+          Extensive experiments show that our method achieves superior performance to prior art on both synthetic and
+          real-world
+          datasets.
+        </p>
+      </div>
+      <!--=================Materials==========================-->
+      <div class="section materials" , id="materials">
+        <h2>Materials</h2>
+        <table width="100%" align="center" border=none cellspacing="0" cellpadding="30">
+          <tr>
+            <td width="60%">
+              <center>
+                <a href="https://arxiv.org/abs/2101.04061" target="_blank" class="imageLink"><img
+                    src="./GFPGAN_src/paper_thumbnail.jpg" , width="80%"></a><br><br>
+                <a href="https://arxiv.org/abs/2101.04061" target="_blank">Paper</a>
+              </center>
+            </td>
+            <td width="40%" valign="middle">
+              <center>
+                <a href="https://github.com/TencentARC/GFPGAN" target="_blank" class="imageLink"><img
+                    src="./icon_github.png" , width="50%"></a><br><br>
+                <a href="https://github.com/TencentARC/GFPGAN" target="_blank">Codes</a>
+              </center>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="section materials" , id="materials">
+        <h2>Testing Datasets</h2>
+        <table width="100%" align="center" border=none cellspacing="0" cellpadding="30">
+          <tr>
+            <td width="50%">
+              <center>
+                <br>
+           <img src="./folders.png" , width="30%"><br><br>
+            <span class="block-text">
+            <a href="https://1drv.ms/u/s!AkGVnRhFUbx2hLUGLMNaJHYET1wk3Q?e=a9wIjD" target="_blank"> <strong>&nbsp;CelebChild-Test (OneDrive)&nbsp;</strong></a></span><br><br>
+          <span class=" block-text">
+            <a href="https://share.weiyun.com/EwHMw16Y" target="_blank"> <strong>&nbsp;CelebChild-Test (腾讯微云)&nbsp;</strong></a></span>
+              </center>
+            </td>
+            <td width="50%" valign="middle">
+              <br>
+              <center>
+           <img src="./folders.png" , width="30%"><br><br>
+            <span class="block-text">
+            <a href="https://1drv.ms/u/s!AkGVnRhFUbx2hLUHkv8QhhLwD8yd1g?e=ecNWSZ" target="_blank"> <strong>&nbsp;WebPhoto-Test (OneDrive)&nbsp;</strong></a></span><br><br>
+          <span class=" block-text">
+            <a href="https://share.weiyun.com/aZH010rK" target="_blank"> <strong>&nbsp;WebPhoto-Test (腾讯微云)&nbsp;</strong></a></span>
+              </center>
+            </td>
+          </tr>
+          <tr>
+            <td width="50%">
+              <center>
+                <br>
+           <img src="./folders.png" , width="30%"><br><br>
+            <span class="block-text">
+            <a href="https://1drv.ms/u/s!AkGVnRhFUbx2hZ4zsVomiSPubMEsrA?e=GwhEao" target="_blank"> <strong>&nbsp;CelebA-Test (LQ) (OneDrive)&nbsp;</strong></a></span><br><br>
+          <span class=" block-text">
+            <a href="https://share.weiyun.com/2oHHyb0k" target="_blank"> <strong>&nbsp;CelebA-Test (LQ) (腾讯微云)&nbsp;</strong></a></span>
+              </center>
+            </td>
+            <td width="50%" valign="middle">
+              <br>
+              <center>
+           <img src="./folders.png" , width="30%"><br><br>
+            <span class="block-text">
+            <a href="https://1drv.ms/u/s!AkGVnRhFUbx2hZ40v049sYcF34hc0A?e=HxGEdl" target="_blank"> <strong>&nbsp;CelebA-Test (HQ) (OneDrive)&nbsp;</strong></a></span><br><br>
+          <span class=" block-text">
+            <a href="https://share.weiyun.com/bFFjCh22" target="_blank"> <strong>&nbsp;CelebA-Test (HQ) (腾讯微云)&nbsp;</strong></a></span>
+              </center>
+            </td>
+          </tr>
+          <tr>
+            <td width="50%">
+              <center>
+                <br>
+           <img src="./folders.png" , width="30%"><br><br>
+            <span class="block-text">
+            <a href="https://1drv.ms/u/s!AkGVnRhFUbx2hZ4yb_Ly5NTopkyY8w?e=abk8bf" target="_blank"> <strong>&nbsp;LFW-Test (OneDrive)&nbsp;</strong></a></span><br><br>
+          <span class=" block-text">
+            <a href="https://share.weiyun.com/cQ3gRylG" target="_blank"> <strong>&nbsp;LFW-Test (腾讯微云)&nbsp;</strong></a></span>
+              </center>
+            </td>
+            <td width="50%" valign="middle">
+
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!--=================Citation==========================-->
+      <div class="section citation" , id="citation">
+        <h2>Citation</h2>
+        <div class="section bibtex">
+          <pre>@InProceedings{wang2021gfpgan,
+          author = {Xintao Wang and Yu Li and Honglun Zhang and Ying Shan},
+          title = {Towards Real-World Blind Face Restoration with Generative Facial Prior},
+          booktitle={The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+          year = {2021}
+          }
+          </pre>
+        </div>
+      </div>
+      <!--=================Contact==========================-->
+      <div class="section contact">
+        <h2 id="contact">Contact</h2>
+        <p>If you have any question, please contact Xintao Wang at <strong>xintao.wang@outlook.com</strong>.</p>
+      </div>
+</body>
+
+</html>
