@@ -1,0 +1,235 @@
+/*
+ * 自定义样式增强
+ * 在主样式文件基础上添加的额外样式
+ */
+
+/* ===========================
+   项目卡片增强样式
+   =========================== */
+.cards-section .item {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cards-section .item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* ===========================
+   论文列表样式优化
+   =========================== */
+.latest .item {
+  margin-bottom: 30px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.latest .item:last-child {
+  border-bottom: none;
+}
+
+.latest .item .project-image {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.latest .item .project-image:hover {
+  transform: scale(1.05);
+}
+
+/* 视频元素优化 */
+.latest .item video {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: block;
+  max-width: 260px;
+  width: 100%;
+}
+
+/* 图片容器优化 */
+.latest .item .col-md-4 {
+  margin-bottom: 20px;
+}
+
+/* 确保图片和视频不会溢出 */
+.latest .item .project-image {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 桌面端：确保左右列正确对齐 */
+@media (min-width: 768px) {
+  .latest .item .col-md-4 {
+    margin-bottom: 0;
+  }
+
+  .latest .item video,
+  .latest .item .project-image {
+    max-width: 260px;
+  }
+}
+
+/* 移动端：确保图片/视频和文字不重叠 */
+@media (max-width: 767px) {
+  .latest .item .col-md-4 {
+    margin-bottom: 25px;
+  }
+
+  .latest .item video,
+  .latest .item .project-image {
+    max-width: 100%;
+  }
+}
+
+/* ===========================
+   链接样式优化
+   =========================== */
+.more-link {
+  display: inline-block;
+  margin: 0 5px;
+  white-space: nowrap;
+}
+
+.more-link i {
+  margin-right: 3px;
+}
+
+/* 确保论文信息段落有足够的行高 */
+.latest .item .desc p {
+  line-height: 1.8;
+}
+
+/* GitHub stars 图片对齐 */
+.latest .item img[alt="GitHub stars"] {
+  vertical-align: middle;
+  margin-left: 5px;
+}
+
+/* ===========================
+   新闻列表样式
+   =========================== */
+.resume-list li {
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.resume-list details {
+  margin-top: 20px;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.resume-list summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #49ac43;
+  padding: 0;
+  transition: color 0.3s ease;
+  list-style: none;
+}
+
+.resume-list summary::marker {
+  content: '';
+}
+
+.resume-list summary:hover {
+  color: #3a8a35;
+}
+
+.pub-note {
+  color: #d0021b;
+  font-weight: 600;
+}
+
+.latest .item .desc .pub-note {
+  color: #d0021b;
+  font-weight: 700;
+}
+
+.latest .heading {
+  margin-bottom: 8px;
+}
+
+.pub-meta-note {
+  margin-bottom: 10px;
+}
+
+/* ===========================
+   响应式优化
+   =========================== */
+@media (max-width: 768px) {
+  .latest .item .col-md-4 {
+    margin-bottom: 15px;
+  }
+
+  .more-link {
+    font-size: 0.9em;
+  }
+
+  .cards-section .item {
+    margin-bottom: 20px;
+  }
+}
+
+/* ===========================
+   暗色模式优化
+   =========================== */
+[data-theme="dark"] .latest .item {
+  border-bottom-color: #333;
+}
+
+[data-theme="dark"] .latest .item .project-image {
+  opacity: 0.9;
+}
+
+[data-theme="dark"] .latest .item .project-image:hover {
+  opacity: 1;
+}
+
+/* ===========================
+   加载动画（可选）
+   =========================== */
+.loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.2em;
+  color: #999;
+}
+
+.loading::after {
+  content: '...';
+  animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% {
+    content: '.';
+  }
+  40% {
+    content: '..';
+  }
+  60% {
+    content: '...';
+  }
+  80%, 100% {
+    content: '';
+  }
+}
+
+/* ===========================
+   打印样式优化
+   =========================== */
+@media print {
+  .header .dark-mode-switch,
+  .header .btn-cta-primary {
+    display: none;
+  }
+
+  .cards-section .item {
+    page-break-inside: avoid;
+  }
+
+  .latest .item {
+    page-break-inside: avoid;
+  }
+}

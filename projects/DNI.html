@@ -1,0 +1,414 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Deep Network Interpolation for Continuous Imagery Effect Transition</title>
+  <!--=================Meta tags==========================-->
+  <meta name="robots" content="index,follow">
+  <meta name="description"
+    content="Deep convolutional neural network has demonstrated its capability of learning a deterministic mapping for the desired imagery effect. However, the large variety of user flavors motivates the possibility of continuous transition among different output effects. Unlike existing methods that require a specific design to achieve one particular transition (e.g., style transfer), we propose a simple yet universal approach to attain a smooth control of diverse imagery effects in many low-level vision tasks, including image restoration, image-to-image translation, and style transfer. Specifically, our method, namely Deep Network Interpolation (DNI), applies linear interpolation in the parameter space of two or more correlated networks. A smooth control of imagery effects can be achieved by tweaking the interpolation coefficients. In addition to DNI and its broad applications, we also investigate the mechanism of network interpolation from the perspective of learned filters.">
+  <meta name="keywords" content="interpolation, super resolution, style transfer, cyclegan">
+  <link rel="author" href="https://xinntao.github.io/projects/DNI">
+  <!--=================js==========================-->
+  <link href="./css.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" type="text/css" href="./project.css" media="screen">
+  <script src="./effect.js "></script>
+  <!-- Latex -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+        TeX: { equationNumbers: { autoNumber: "AMS" } },
+      });
+      </script>
+  <script type="text/javascript" async
+    src="js/MathJax.js">
+  </script>
+  <!--=================Google Analytics==========================-->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FBT54RFYKE"></script>
+  <script>
+    var doNotTrack = false;
+    if ( false ) {
+      var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+      var doNotTrack = (dnt == "1" || dnt == "yes");
+    }
+    if (!doNotTrack) {
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-FBT54RFYKE');
+    }
+  </script>
+</head>
+
+<body>
+  <div id="content">
+    <div id="content-inner">
+      <div class="section head">
+        <h1>
+          <font color="Tomato">D</font>eep <font color="Tomato">N</font>etwork <font color="Tomato">I</font>nterpolation
+        </h1>
+        <h1>for Continuous Imagery Effect Transition</h1>
+        <!--=================Authors==========================-->
+        <div class="authors">
+          <a href="https://xinntao.github.io/" target="_blank">Xintao Wang</a> <sup>1</sup> &nbsp;&nbsp;&nbsp;&nbsp;
+          <a href="https://yuke93.github.io/" target="_blank">Ke Yu</a> <sup>1</sup> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <a href=" https://scholar.google.com.hk/citations?user=OSDCB0UAAAAJ" target="_blank">Chao Dong</a>
+          <sup>2</sup> &nbsp;&nbsp;&nbsp;&nbsp;
+          <a href="https://scholar.google.com/citations?user=qpBtpGsAAAAJ" target="_blank">Xiaoou Tang</a> <sup>1</sup>
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <a href="http://personal.ie.cuhk.edu.hk/~ccloy/" target="_blank">Chen Change Loy</a> <sup>3</sup>
+        </div>
+
+        <div class="affiliations ">
+          <sup>1</sup> <a href="http://mmlab.ie.cuhk.edu.hk/" target="_blank">CUHK - SenseTime Joint Lab, The Chinese
+            University of Hong Kong</a> <br>
+          <sup>2</sup> Shenzhen Institutes of Advanced Technology, Chinese Academy of Sciences<br>
+          <sup>3</sup> Nanyang Technological University, Singapore
+        </div>
+        <!--=================Tabs==========================-->
+        <ul id="tabs">
+          <li><a href="#dni" name="#tab1">DNI</a></li>
+          <li><a href="#understanding" name="#tab2">Understanding DNI</a></li>
+          <li><a href="#applications" name="#tab3">Applications</a></li>
+      </div>
+      <br>
+      <!--=================Teasers==========================-->
+      <div id="img_intro_examples" class="img_container">
+        <center>
+          <div class="leftView">
+            <div class="mask" style="width:80px;height:80px"></div>
+            <img class='small' src="./DNI_src/teaser.jpg">
+          </div>
+        </center>
+      </div>
+      <div class="section">
+        <p>Deep network interpolation is capable of generating continuous imagery effect transitions. <b><i>(1st
+              row)</i></b> from MSE effect to GAN
+          effect in super-resolution; <b><i>(2nd row)</i></b> from Van Gogh style to Ukiyo-e style; <b><i>(3rd
+              row)</i></b> from day photo to night one; <b><i>(4th row)</i></b> from deep depth of field (DoF) to
+          shallow one.</p>
+        <p>The following is a YouTube video showing several DNI examples. See <a href="#applications">Applications</a>
+          for more details.</p>
+        <center>
+          <iframe width="560" height="315" src="https://www.youtube.com/embed/8HkXZPcxK9c" frameborder="0"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </center>
+      </div>
+      <!--=================Materials==========================-->
+      <div class="section materials">
+        <h2>Materials</h2>
+        <table width="100%" align="center" border=none cellspacing="0" cellpadding="30">
+          <tr>
+            <td width="70%">
+              <center>
+                <a href="https://arxiv.org/abs/1811.10515" target="_blank" class="imageLink"><img
+                    src="./DNI_src/paper_thumbnail.jpg" , width="80%"></a><br><br>
+                <a href="https://arxiv.org/abs/1811.10515" target="_blank">Paper</a>
+              </center>
+            </td>
+            <td width="30%" valign="middle">
+              <center>
+                <a href="https://github.com/xinntao/DNI" target="_blank" class="imageLink"><img src="./icon_github.png"
+                    , width="50%"></a><br><br>
+                <a href="https://github.com/xinntao/DNI" target="_blank">Codes</a>
+              </center>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <!--=================Highlights==========================-->
+      <div class="section abstract">
+        <h2>Highlights</h2>
+        <ol>
+          <li>We propose a simple yet universal approach - deep network interpolation, for smooth and <b>continuous
+              imagery effect transition without further training</b>.</li>
+          <li>Different from previous works operating in the feature space, we make an attempt to investigate the
+            manipulation in the <b>parameter space</b> of neural networks.</li>
+          <li>Our analyses show that learned filters for several related tasks exhibit continuous changes. We believe
+            that it is worth exploiting the <b>underlying correlations of learned filters</b> to further extend the
+            ability and practicality of existing models.
+          </li>
+        </ol>
+      </div>
+      <!--=================Abstract==========================-->
+      <div class="section abstract">
+        <h2>Abstract</h2>
+        <br>
+        <p>
+          Deep convolutional neural network has demonstrated its capability of learning a deterministic mapping for the
+          desired imagery effect. However, the large variety of user flavors motivates the possibility of continuous
+          transition among different output effects. Unlike existing methods that require a specific design to achieve
+          one particular transition (e.g., style transfer), we propose a <b>simple yet universal approach</b> to attain
+          a smooth control of diverse imagery effects in <i>many low-level vision tasks, including image restoration,
+            image-to-image translation, and style transfer</i>. Specifically, our method, namely Deep Network
+          Interpolation (DNI), applies <b>linear interpolation in the parameter space of two or more correlated
+            networks</b>. A smooth control of imagery effects can be achieved by tweaking the interpolation
+          coefficients. In addition to DNI and its broad applications, we also investigate the mechanism of network
+          interpolation from the perspective of learned filters.
+        </p>
+      </div>
+      <!--=================DNI==========================-->
+      <br>
+      <div class="section" , id="dni">
+        <h2>Deep Network Interpolation (DNI)</h2>
+        <p>
+          DNI achieves continuous imagery effect transition via linear interpolation in the <b>parameter space</b> of
+          existing trained networks. Specifically, consider two networks $G_{\theta}^{A}$ and $G_{\theta}^{B}$ with the
+          same structure, achieving different effects $\mathcal{A}$ and $\mathcal{B}$, respectively.
+          We assume that their parameters $\theta_{A}$ and $\theta_{B}$ have a ''strong correlation'' with each other,
+          <i>i.e.</i>, the filter orders and filter patterns in the same position of $G^{A}$ and $G^{B}$ are similar.
+          This could be realized by some constraints like <b>fine-tuning</b> or joint training. This assumption provides
+          the possibility for meaningful interpolation.
+        </p>
+        <p>DNI interpolates all the corresponding parameters of the two models to derive a new interpolated model
+          $G^{interp}$, whose parameters are:
+          \begin{equation}
+          \theta_{interp} = \alpha \ \theta_{A} + (1-\alpha) \ \theta_{B},
+          \end{equation}
+          where $\alpha \in [0, 1]$ is the interpolation coefficient. Indeed, it is a linear interpolation of the two
+          parameter vectors $\theta_{A}$ and $\theta_{B}$.
+          The interpolation coefficient $\alpha$ controls a balance of the effect $\mathcal{A}$ and $\mathcal{B}$. By
+          smoothly sliding $\alpha$, we achieve continuous transition effects without abrupt changes.</p>
+        <p>
+          <i>Generally</i>, DNI can be extended for $N$ models, denoted by $G^{1}, G^{2}, ..., G^{N}$, whose parameters
+          have a ''close correlation'' with each other. The DNI is then formulated as:
+          \begin{equation}\label{eq:DNI_Nmodels} \theta_{interp}=\alpha_{1} \theta_{1} + \alpha_{2} \theta_{2} + ... +
+          \alpha_{N} \theta_{N}, \end{equation} where $\alpha_{i}$ satisfy $\alpha _{i}\geq 0$ and $ \alpha _{1}+\alpha
+          _{2}+\cdots +\alpha _{N}=1$. In other words, it is a convex combination of the parameter vectors $\theta_{1},
+          \theta_{2}, ...,\theta_{N}.$ By adjusting $(\alpha_{1}, \alpha_{2}, ..., \alpha_{N})$, a rich and diverse
+          effects with continuous transitions could be realized.
+        </p>
+        <p>It is worth noticing that the choice of the network structure for DNI is flexible, as long as the structures
+          of models to be interpolated are kept the same.
+          Our experiments on different architectures show that DNI is compatible with popular network structures such as
+          VGG, ResNet and DenseNet.
+        </p>
+        <p>See <a href="https://arxiv.org/abs/1811.10515">our paper</a> for more details. </p>
+      </div>
+      <br>
+      <!--=================Understanding==========================-->
+      <div class="section" , id="understanding">
+        <h2>Understanding Network Interpolation</h2>
+        <p>
+          We attempt to gain more understanding on network interpolation from some empirical studies. From our
+          experiments, we observe that:
+          <ol>
+            <li>Fine-tuning facilitates high correlation between parameters of different networks, providing the
+              possibility for meaningful
+              interpolation.</li>
+            <li>Fine-tuned filters for a series of related tasks present continuous changes.</li>
+            <li>Our analyses show that interpolated filters could fit the actual learned filters well.</li>
+          </ol>
+
+          Note that our analyses mainly focus on <i>filters</i> since most of the parameters in CNNs are in the
+          form of filters.
+          <br>See <a href="https://arxiv.org/abs/1811.10515">our paper</a> for more details.
+        </p>
+        <table width="100%" align="center" border=none cellspacing="0" cellpadding="0">
+          <tr>
+            <td width="50%">
+              <img src="./DNI_src/filter_correlation.png" , width="85%">
+            </td>
+            <td width="50%" valign="middle">
+              <img src="./DNI_src/filter_interp.png" , width="85%">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+      <!--=================Applications==========================-->
+      <div class="section" , id="applications">
+        <h2>Applications</h2>
+        <!--=================*******==========================-->
+        <h3>1. Image Restoration - Balance MSE and GAN effects in super-resolution.</h3>
+        <p>The MSE effect is <b>over-smooth</b> while the GAN effect is always accompanied with <b>unpleasant
+            artifacts</b> (<i>e.g.</i>, the eaves and water waves). DNI allows smooth transition from one effect to the
+          other and produces visually-pleasing results with <b>largely reduced artifacts while maintaining the
+            textures</b>. In contrast, the pixel interpolation strategy fails to separate the artifacts and textures.
+        </p>
+        <div id="sr" class="img_container">
+          <!-- <p style="color:Tomato;">&nbsp;&nbsp;&nbsp;&nbsp; (You can <b>zoom in</b> to see image details by <b>hovering your mouse</b> on the image :-) )</p> -->
+          <center>
+            <div class="leftView">
+              <div class="mask" style="width:70px;height:70px"></div>
+              <img class='small' src="./DNI_src/sr.png">
+            </div>
+          </center>
+          <!-- <div class="rightView">
+            <img class="big" src="./DNI_src/sr_large.png">
+          </div> -->
+          <!-- <script>
+          imageZoom("sr", 1);
+        </script> -->
+        </div>
+        <br>
+        <!--=================*******==========================-->
+        <h3>2. Image Restoration - Adjust denoising strength.</h3>
+        <p>It is desired to adjustable denoising strength for satisfying various demands. For instance, popular image
+          editing softwares like Photoshop, have controllable options for each tool. Denoising models without adjustment
+          (with yellow frames) are unable to balance the noise
+          removal and detail preservation. For the grass, a weaker denoising strength could preserve more textures while
+          for the sky, the stronger
+          denoising strength could obtain an artifact-free result, improving the visual quality (with red frames).</p>
+        </p>
+        <div id="denoise" class="img_container">
+          <center>
+            <div class="leftView">
+              <div class="mask" style="width:70px;height:70px"></div>
+              <img class='small' src="./DNI_src/denoise.png">
+            </div>
+          </center>
+          <!-- <div class="rightView">
+            <img class="big" src="./DNI_src/denoise_large.png">
+          </div> -->
+        </div>
+        <!-- <script>
+          imageZoom("denoise", 1);
+        </script> -->
+        <p>We further present an application of <b>spatial control</b> for adjustable denoising. For the DSLR
+          photos with shallow depth-of-filed, the background is usually blurred while the foreground contains rich
+          details. We
+          can easily separate them with a mask and adopt different denoising strengths respectively. With adjustable
+          denoising realized by DNI, the blurry area is more smooth without artifacts, while there are rich details in
+          texture regions.</p>
+        <div id="denoise_spatial" class="img_container">
+          <center>
+            <div class="leftView">
+              <div class="mask" style="width:70px;height:70px"></div>
+              <img class='small' src="./DNI_src/spatial_control.jpg">
+            </div>
+          </center>
+          <!-- <div class="rightView">
+            <img class="big" src="./DNI_src/spatial_control_large.png">
+          </div> -->
+        </div>
+        <!-- <script>
+          imageZoom("denoise_spatial", 1);
+        </script> -->
+        <br>
+        <!--=================*******==========================-->
+        <h3>3. Image-to-image Translation - Photos to paintings.</h3>
+        <p>DNI produces a smooth transition from Van Gogh’s style to Cézanne’s style both in the palette and brush
+          strokes.</p>
+        <div class="img_container">
+          <center>
+            <div class="leftView">
+              <div class="mask" style="width:70px;height:70px"></div>
+              <img class='small' src="./DNI_src/paintings.jpg">
+            </div>
+          </center>
+        </div>
+        <p>The following <b>GIFs</b> show smooth transitions among several painting styles: Monet -> Van Gogh -> Cézanne
+          -> Ukiyo-e.</p>
+        <table width="100%" align="center" border=none cellspacing="0" cellpadding="0">
+          <tr>
+            <td width="25%"></td>
+            <td width="25%">
+              <img src="./DNI_src/painting_01010.gif" , width="100%">
+            </td>
+            <td width="25%">
+              <img src="./DNI_src/painting_01030.gif" , width="104%">
+            </td>
+            <td width="25%"></td>
+          </tr>
+        </table>
+        <!--=================*******==========================-->
+        <h3>4. Image-to-image Translation - Depth of Field (DoF).</h3>
+        <p>Smooth transition on depth of field with DNI. However, pixel interpolation generates ghosting artifacts.</p>
+        <div class="img_container">
+          <center>
+            <div class="leftView">
+              <div class="mask" style="width:70px;height:70px"></div>
+              <img class='small' src="./DNI_src/dof.jpg">
+            </div>
+          </center>
+          <br>
+        </div>
+        <!--=================*******==========================-->
+        <h3>5. Image-to-image Translation - From day to night.</h3>
+        <p>Day photos to night ones. As the night approaches, it is getting darker and the lights are gradually lit up,
+          reflected on the water.</p>
+        <div class="img_container">
+          <center>
+            <div class="leftView">
+              <div class="mask" style="width:70px;height:70px"></div>
+              <img class='small' src="./DNI_src/day2tnight.jpg">
+            </div>
+          </center>
+        </div>
+        <br>
+        <!--=================*******==========================-->
+        <h3>6. Image Style Transfer.</h3>
+        <p>In image style transfer, without specific structures and strategies, DNI is capable of generating smooth
+          transitions between
+          different styles, from large strokes to small strokes, together with balancing the content and style.</p>
+        <div class="img_container">
+          <center>
+            <div class="leftView">
+              <div class="mask" style="width:70px;height:70px"></div>
+              <img class='small' src="./DNI_src/style_transfer.jpg">
+            </div>
+          </center>
+        </div>
+        <br>
+        <!--=================*******==========================-->
+        <h3>7. Semantic Change - Smooth transitions on face attributes.</h3>
+        <p>Smooth transitions on face attributes with DNI - from male to female, and from young to old.</p>
+        <div class="img_container">
+          <center>
+            <div class="leftView">
+              <div class="mask" style="width:70px;height:70px"></div>
+              <img class='small' src="./DNI_src/face_attribute.jpg">
+            </div>
+          </center>
+        </div>
+        <br>
+        <table width="100%" align="center" border=none cellspacing="0" cellpadding="0">
+          <tr>
+            <td width="20%"></td>
+            <td width="30%">
+              <img src="./DNI_src/male2female.gif" , width="100%">
+            </td>
+            <td width="30%">
+              <img src="./DNI_src/young2old.gif" , width="100%">
+            </td>
+            <td width="20%"></td>
+          </tr>
+        </table>
+        <!--=================*******==========================-->
+        <h3>8. Multi-ends DNI.</h3>
+        <p>A general form of DNI is also capable of interpolating more than two networks. For example, transferring
+          among different styles - Mosaic style, Candy style, Mondrian style and Udnie style; translating landscape
+          photos to paintings with various styles - Van Gogh, Cézanne, Monet and Ukiyo-e.</p>
+        <div class="img_container">
+          <center>
+            <br>
+            <div class="leftView">
+              <div class="mask" style="width:70px;height:70px"></div>
+              <img class='small' src="./DNI_src/multi-ends_paintings.jpg">
+            </div>
+          </center>
+        </div>
+      </div>
+      <!--=================Citation==========================-->
+      <div class="section citation">
+        <h2>Citation</h2>
+        <div class="section bibtex">
+          <pre>@Article{wang2018dni,
+  author    = {Wang, Xintao and Yu, Ke and Dong, Chao and Tang, Xiaoou and Loy, Chen Change},
+  title     = {Deep network interpolation for continuous imagery effect transition},
+  journal   = {arXiv preprint arXiv:1811.10515},
+  year      = {2018}
+}</pre>
+        </div>
+      </div>
+      <!--=================Contact==========================-->
+      <div class="section contact">
+        <h2 id="contact">Contact</h2>
+        <p>If you have any question, please contact Xintao Wang at <strong>xintao.wang@outlook.com</strong>.</p>
+      </div>
+</body>
+
+</html>
