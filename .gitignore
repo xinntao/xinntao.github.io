@@ -1,0 +1,27 @@
+# macOS / OneDrive sync noise
+evidence
+.DS_Store
+**/.DS_Store
+Icon?
+*.icloud
+.trash/
+
+# Local editor and runtime noise
+Untitled*
+__pycache__/
+*.pyc
+.venv/
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+~$*
+
+# Local deployment helper
+update.sh
+
+# Obsolete vendor plugin copies removed from the site
+assets/plugins/github-activity/
+assets/plugins/github-calendar/
+assets/plugins/vanilla-rss/
